@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>滚动条</title>
+  <style>
+    .back {
+      height: 500px;
+      width: 500px;
+      background: #000;
+      border: 2px solid #f00;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .scroll {
+      height: 100px;
+      width: 30px;
+      background: yellow;
+    }
+
+    .xst {
+      width: 100px;
+      height: 100px;
+      background: #f00;
+      margin: 10px;
+    }
+
+    .xst_warp {
+      position: absolute;
+      right: 0;
+      top: 0
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="back" id="bg">
+    <div id="scrollBar" class="scroll"></div>
+    <div class="xst_warp" id="bgChild">
+      <div class="xst">1</div>
+      <div class="xst">2</div>
+      <div class="xst">3</div>
+      <div class="xst">4</div>
+      <div class="xst">5</div>
+      <div class="xst">6</div>
+      <div class="xst">7</div>
+      <div class="xst">8</div>
+      <div class="xst">9</div>
+      <div class="xst">10</div>
+    </div>
+  </div>
+  <script>
+    var statusFlag = 0;
+    var diff;
+    let bgDom = document.getElementById('bg');
+    let bgChild = document.getElementById('bgChild');
+    let scrollDom = document.getElementById('scrollBar');
+    scrollDom.onmousedown = function () {
+      statusFlag = 1;
+      diff = event.clientY - this.offsetTop;
+    }
+    scrollDom.onmousemove = function () {
+      let bgClientHeight = bgDom.clientHeight;
+      if (statusFlag) {
+        let diffY = event.clientY - diff;
+        if (diffY <= 0) {
+          diffY = 0;
+        } else if (diffY >= bgClientHeight - this.offsetHeight) {
+          diffY = bgClientHeight - this.offsetHeight
+        }
+        scrollDom.style.marginTop = diffY + 'px';
+        let percent = this.offsetTop / (bgClientHeight - this.offsetHeight);
+        bgChild.style.top = -(bgChild.offsetHeight - bgClientHeight) * percent + 'px';
+      }
+    }
+    scrollDom.onmouseout = function () {
+      statusFlag = 0;
+    }
+    scrollDom.onmouseup = function () {
+      statusFlag = 0;
+    }
+
+  </script>
+</body>
+
+</html>

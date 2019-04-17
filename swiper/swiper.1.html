@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>swiper</title>
+</head>
+<body>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 750px;
+            height: 300px;
+            overflow: hidden;
+            position: relative;
+            margin: 100px auto 0;
+        }
+        .swiper {
+            position: absolute;
+            white-space: nowrap;
+            font-size: 0;
+            /* left: -750px; */
+            transition: all 0.3s;
+        }
+        .swiper_container {
+            /* background: red; */
+            width: 750px;
+            height: 300px;
+        }
+        .swiper_row {
+            display: flex;
+            height: 100px;
+        }
+        .item_container {
+            width: 250px;
+            /* display: flex; */
+            overflow: hidden;
+        }
+        .swiper_container .swiper_row_item:nth-child(2) {
+            background-position: center 0;            
+        }
+        .nowarp {
+            width: 500px;
+            height: 100%;
+            display: flex;
+            white-space: nowrap;
+        }
+        .animate {
+            transform: translate3d(-50%, 0, 0);
+            transition: all 0.5s;
+        }
+        .swiper_row_item {
+            width: 250px;
+            height: 100%;
+            background-image: url('./img/1.png');
+        }
+        .swiper_row_other {
+            width: 250px;
+            height: 100%;
+            background-image: url('./img/2.png');
+        }
+        .arrow_l,.arrow_r {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            top: 100px
+        }
+        .arrow_l {
+            left: 10px;
+        }
+        .arrow_r {
+            right: 10px;
+        }
+        
+    </style>
+    <div class="container">
+        <div class="swiper" id="list">
+            <div class="swiper_container">
+                <div class="swiper_row">
+                    <div class="item_container">
+                        <div class="nowarp">
+                            <div class="swiper_row_item"></div>
+                            <div class="swiper_row_other"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <img class="arrow_l" src="./img/left.png" onclick="toLeft()"/>
+            <img class="arrow_r" src="./img/right.png" onclick="toRight()"/>
+        </div>
+    </div>
+    <script>
+        let row = 3;
+        let column = 3;
+        let list = document.getElementById("list");
+        let itemContainer = document.querySelector(".item_container");
+        let swiperRow = document.querySelector(".swiper_row");
+        let swiperContainer = document.querySelector(".swiper_container");
+        let itemList = document.getElementsByClassName("nowarp");
+        let swiperRowItem = document.getElementsByClassName("swiper_row_item");
+        let swiperRowOther = document.getElementsByClassName("swiper_row_other");
+        let width = itemContainer.offsetWidth;
+        let height = itemContainer.offsetHeight;
+
+        // 动态生成行和列
+        for (let i = 0; i < column-1; i++) {
+            swiperRow.appendChild(itemContainer.cloneNode(true));
+        }
+        for (let i = 0; i < row-1; i++) {
+            swiperContainer.appendChild(swiperRow.cloneNode(true));            
+        }
+
+        for (let i = 1; i <= row; i++) {
+            for (let j = 1; j <= column; j++) {
+                let index = j + (i - 1) * column;
+                let w = (j-1)*-width;
+                let h = (i-1)*-height;
+                let res = `${w}px ${h}px`
+                console.log(`第${i}行,第${j}列,第${index}个,w${w},h${h},${res}`);
+                // 添加样式
+                swiperRowItem[index-1].style.backgroundPosition = res;
+                swiperRowOther[index-1].style.backgroundPosition = res;
+            }
+        }
+
+        let index = 1;
+        let flag = true;
+        itemList = Array.from(itemList);
+        let maxIndex = 5;
+        
+        function toLeft() {
+            if (!flag) return;
+            flag = false;
+            console.log('left');
+            index--;
+            if (index < 1) {
+                index = maxIndex;
+            }
+            itemList.forEach((el,i) => {
+                swiperRowOther[i].style.backgroundImage = `url('./img/${index}.png')`;
+                el.classList.remove('animate');
+                el.style.transitionDelay = i*30+'ms'
+                el.classList.add('animate');
+            });
+            console.log(index);
+        }
+        function toRight() {
+            if (!flag) return;
+            flag = false;
+            console.log('right');
+            index++ ;
+            if (index > maxIndex) {
+                index = 1;
+            }
+            itemList.forEach((el,i) => {
+                swiperRowOther[i].style.backgroundImage = `url('./img/${index}.png')`;
+                el.classList.remove('animate');
+                el.style.transitionDelay = i*30+'ms'
+                el.classList.add('animate');
+            });
+            console.log(index);
+        }
+        itemList[itemList.length-1].addEventListener('transitionend', (e) => {
+            console.log('过渡动画结束', e);
+            flag = true;
+            itemList.forEach((el, i) => {
+                el.style.transitionDelay = 0+'ms';
+                swiperRowItem[i].style.backgroundImage = `url('./img/${index}.png')`;
+                el.classList.remove('animate');
+            });
+        })
+    </script>
+    
+</body>
+</html>

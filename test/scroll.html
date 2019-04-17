@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>滚动条</title>
+  <style>
+    .back {
+      height: 500px;
+      width: 500px;
+      background: #000;
+      border: 2px solid #f00;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .scroll {
+      height: 100px;
+      width: 30px;
+      background: yellow;
+    }
+
+    .xst {
+      width: 100px;
+      height: 100px;
+      background: #f00;
+      margin: 10px;
+    }
+
+    .xst_warp {
+      position: absolute;
+      right: 0;
+      top: 0
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="back" id="bg" onmousewheel="wheel(event, this)">
+    <div id="scrollBar" class="scroll" onmouseup="up()" onmousedown="down(event, this)" onmousemove="move(event, this)" onmouseout="out(event)"
+      onmouseover="over(event)"></div>
+    <div class="xst_warp" id="bgChild">
+      <div class="xst">1</div>
+      <div class="xst">2</div>
+      <div class="xst">3</div>
+      <div class="xst">4</div>
+      <div class="xst">5</div>
+      <div class="xst">6</div>
+      <div class="xst">7</div>
+      <div class="xst">8</div>
+      <div class="xst">9</div>
+      <div class="xst">10</div>
+    </div>
+  </div>
+  <script>
+    var statusFlag = 0;
+    var diff;
+    let bgDom = document.getElementById('bg');
+    let bgChild = document.getElementById('bgChild');
+    let scrollDom = document.getElementById('scrollBar');
+    let bgClientHeight = bgDom.clientHeight;
+    function down(params, that) {
+      statusFlag = 1;
+      diff = params.clientY - that.offsetTop;
+    }
+    function move(params, that) {
+      if (statusFlag) {
+        let diffY = params.clientY - diff;
+        if (diffY <= 0) {
+          diffY = 0;
+        } else if (diffY >= bgClientHeight - that.offsetHeight) {
+          diffY = bgClientHeight - that.offsetHeight
+        }
+        scrollDom.style.marginTop = diffY + 'px';
+        let percent = that.offsetTop / (bgClientHeight - that.offsetHeight);
+        bgChild.style.top = -(bgChild.offsetHeight - bgClientHeight) * percent + 'px';
+      }
+    }
+    function out(params) {
+      statusFlag = 0;
+    }
+    function over(params) {
+    }
+
+    function up() {
+      statusFlag = 0;
+    }
+    function wheel(params) {
+      console.log(params);
+      let diff = 0;
+      let scrollDomTop = scrollDom.offsetTop;
+      if (params.wheelDelta > 0 && scrollDomTop > 0) {
+        diff = -20
+      } else if (params.wheelDelta < 0 && scrollDomTop < bgClientHeight - scrollDom.offsetHeight) {
+        diff = 20
+      }
+      scrollDom.style.marginTop = scrollDomTop + diff + 'px';
+      let percent = scrollDom.offsetTop / (bgClientHeight - scrollDom.offsetHeight);
+      bgChild.style.top = -(bgChild.offsetHeight - bgClientHeight) * percent + 'px';
+    }
+  </script>
+</body>
+
+</html>

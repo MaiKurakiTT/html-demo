@@ -1,0 +1,187 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>滚动条</title>
+  <style>
+    .back {
+      height: 500px;
+      width: 500px;
+      background: #000;
+      border: 2px solid #f00;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .scroll {
+      height: 100px;
+      width: 30px;
+      background: yellow;
+    }
+
+    .xst {
+      width: 100px;
+      height: 100px;
+      background: #f00;
+      margin: 10px;
+    }
+
+    .xst_warp {
+      position: absolute;
+      right: 0;
+      top: 0
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="back" id="bg">
+    <div id="scrollBar" class="scroll"></div>
+    <div class="xst_warp" id="bgChild">
+      <div class="xst">1</div>
+      <div class="xst">2</div>
+      <div class="xst">3</div>
+      <div class="xst">4</div>
+      <div class="xst">5</div>
+      <div class="xst">6</div>
+      <div class="xst">7</div>
+      <div class="xst">8</div>
+      <div class="xst">9</div>
+      <div class="xst">10</div>
+    </div>
+  </div>
+  <div class="back" id="bg2">
+    <div id="scrollBar2" class="scroll"></div>
+    <div class="xst_warp" id="bgChild2">
+      <div class="xst">1</div>
+      <div class="xst">2</div>
+      <div class="xst">3</div>
+      <div class="xst">4</div>
+      <div class="xst">5</div>
+      <div class="xst">6</div>
+      <div class="xst">7</div>
+      <div class="xst">8</div>
+      <div class="xst">9</div>
+      <div class="xst">10</div>
+    </div>
+  </div>
+  <script>
+    let bg = document.getElementById('bg')
+    let bg2 = document.getElementById('bg2')
+    let scroll = document.getElementById('scrollBar')
+    let scroll2 = document.getElementById('scrollBar2')
+    let child = document.getElementById('bgChild')
+    let child2 = document.getElementById('bgChild2')
+    // scrollFunction(bg, child, scroll);
+    // scrollFunction(bg2, child2, scroll2);
+
+    function Scroll(bgDom, bgChildDom, scrollDom) {
+      this.statusFlag = 0;
+      this.diff = 0;
+      this.bgDom = bgDom;
+      this.bgChildDom = bgChildDom;
+      this.scrollDom = scrollDom;
+      this.bgClientHeight = this.bgDom.clientHeight;
+    }
+
+    var p = Scroll.prototype;
+    p.events = function () {
+      console.log('events', this);
+      this.scrollDom.addEventListener('mousedown', this.mousedownFn.bind(this));
+      this.scrollDom.addEventListener('mousemove', this.mousemoveFn.bind(this));
+      this.scrollDom.addEventListener('mouseup', this.mouseupFn.bind(this));
+      this.bgDom.addEventListener('mousewheel', this.mousewheelFn.bind(this))
+    }
+
+    p.mousedownFn = function (event) {
+      this.statusFlag = 1;
+      console.log('mousedown', event.clientY);
+      this.diff = event.clientY - this.scrollDom.offsetTop;
+    }
+
+    p.mousemoveFn = function (event) {
+      if (this.statusFlag) {
+        let diffY = event.clientY - this.diff;
+        if (diffY <= 0) {
+          diffY = 0;
+        } else if (diffY >= this.bgClientHeight - this.scrollDom.offsetHeight) {
+          diffY = this.bgClientHeight - this.scrollDom.offsetHeight
+        }
+        this.scrollDom.style.marginTop = diffY + 'px';
+        let percent = this.scrollDom.offsetTop / (this.bgClientHeight - this.scrollDom.offsetHeight);
+        this.bgChildDom.style.top = -(this.bgChildDom.offsetHeight - this.bgClientHeight) * percent + 'px';
+      }
+    }
+
+    p.mouseupFn = function () {
+      this.statusFlag = 0;
+    }
+
+    p.mousewheelFn = function (event) {
+      let diff = 0;
+      event.preventDefault();
+      console.log(this);
+      let scrollDomTop = this.scrollDom.offsetTop;
+      if (event.wheelDelta > 0 && scrollDomTop > 0) {
+        diff = -20
+      } else if (event.wheelDelta < 0 && scrollDomTop < this.bgClientHeight - this.scrollDom.offsetHeight) {
+        diff = 20
+      }
+      this.scrollDom.style.marginTop = scrollDomTop + diff + 'px';
+      let percent = scrollDomTop / (this.bgClientHeight - this.scrollDom.offsetHeight);
+      this.bgChildDom.style.top = -(this.bgChildDom.offsetHeight - this.bgClientHeight) * percent + 'px';
+    }
+    var a = new Scroll(bg, child, scroll);
+    var b = new Scroll(bg2, child2, scroll2);
+    a.events();
+    b.events();
+    function scrollFunction(bgId, bgChildId, scrollId) {
+      var statusFlag = 0;
+      var diff;
+      let bgDom = bgId;
+      let bgChildDom = bgChildId;
+      let scrollDom = scrollId;
+      let bgClientHeight = bgDom.clientHeight;
+      scrollDom.addEventListener('mousedown', function () {
+        statusFlag = 1;
+        diff = event.clientY - this.offsetTop;
+      })
+      scrollDom.addEventListener('mousemove', function () {
+        if (statusFlag) {
+          let diffY = event.clientY - diff;
+          if (diffY <= 0) {
+            diffY = 0;
+          } else if (diffY >= bgClientHeight - this.offsetHeight) {
+            diffY = bgClientHeight - this.offsetHeight
+          }
+          scrollDom.style.marginTop = diffY + 'px';
+          let percent = this.offsetTop / (bgClientHeight - this.offsetHeight);
+          bgChildDom.style.top = -(bgChildDom.offsetHeight - bgClientHeight) * percent + 'px';
+        }
+      })
+      scrollDom.addEventListener('mouseout', function () {
+        statusFlag = 0;
+      })
+      scrollDom.addEventListener('mouseup', function () {
+        statusFlag = 0;
+      })
+      bgDom.addEventListener('mousewheel', function () {
+        let diff = 0;
+        let scrollDomTop = scrollDom.offsetTop;
+        if (event.wheelDelta > 0 && scrollDomTop > 0) {
+          diff = -20
+        } else if (event.wheelDelta < 0 && scrollDomTop < bgClientHeight - scrollDom.offsetHeight) {
+          diff = 20
+        }
+        scrollDom.style.marginTop = scrollDomTop + diff + 'px';
+        let percent = scrollDomTop / (bgClientHeight - scrollDom.offsetHeight);
+        bgChildDom.style.top = -(bgChildDom.offsetHeight - bgClientHeight) * percent + 'px';
+      })
+    }
+  </script>
+
+</body>
+
+</html>

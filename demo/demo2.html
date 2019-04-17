@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    .text_relative {
+        background: yellow;
+        position: relative;
+        width: 100px;
+        height: 100px;
+    }
+    .text_absolute {
+        display: block;
+        background: green;
+        position: absolute;
+        left: 20px;
+        top: 20px;
+    }
+    .btn {
+        width: 240px;
+        background: yellowgreen;
+        padding: 20px;
+    }
+    .box {
+        background: rebeccapurple;
+        padding: 10px;
+        text-align: center;
+        width: 0px;
+    }
+    .box_content {
+        display: inline-block;
+        text-align: left;
+        word-break: break-all;
+    }
+    .ao,
+    .tu {
+        display: inline-block;
+        width: 0;
+        font-size: 14px;
+        line-height: 18px;
+        margin: 35px;
+    }
+    .ao:before,
+    .tu:before {
+        outline: 2px solid #cd0000;
+        font-family: Consolas, Monaco, monospace;
+    }
+    .ao:before {
+        content: "love你love";
+    }
+    .tu {
+        direction: rtl;
+    }
+    .tu:before {
+        content: "我love你";
+    }
+    .wrap {
+        width: 300px; 
+        height: 200px;
+        position: relative;
+        overflow: hidden;
+    }
+    .wrap > ul {
+        position: absolute;
+        white-space: nowrap;
+    }
+    .wrap li {
+        display: inline-block;
+    }
+    .box2 {
+        display: inline-block;
+        white-space: nowrap;
+        background-color: #cd0000;
+    }
+    .text {
+        display: inline-block;
+        width: 100%;
+        background-color: #34538b;
+        color: #fff;
+    }
+    .max_min {
+        max-width: 50px;
+        min-width: 100px;
+        height: 40px;
+        background: yellow;
+    }
+    .img_1 {
+        width: 500px;
+    }
+</style>
+<body>
+    <!-- 格式化宽度  absolute、fixed具有流动性 -->
+    <div class="text_relative">
+        <div class="text_absolute"></div>
+    </div>
+    <!-- 按钮 inline-block 内部尺寸特性 自适应性 -->
+    <div class="btn">
+        <button >按钮阿拉啦啦啦啦啦啦lalalalallaalla看撒娇过疯狂的石头介入科</button>
+    </div>
+    <!-- 文字少时居中显示，超过一行居左显示 -->
+    <div class="box">
+        <div class="box_content">hello-word</div>
+    </div>
+    <!-- 凹凸 -->
+    <span class="ao"></span>
+    <span class="tu"></span>
+    <!-- 最大宽度 -->
+    <div id="wrap" class="wrap">
+        <ul>
+          <li><img src="./img/1.jpg"></li>
+          <li><img src="./img/1.jpg"></li>
+          <li><img src="./img/1.jpg"></li>
+          <li><img src="./img/1.jpg"></li>
+          <li><img src="./img/1.jpg"></li>
+        </ul>
+    </div>
+    <!-- width100%不存在死循环 -->
+    <!-- 父元素的宽度=图片宽度+文字内容的宽度 -->
+    <div class="box2">
+        <img src="./img/1.jpg">
+        <span class="text">啦啦啦啦啦啦啦</span>
+    </div>
+    <!-- min-width max-width -->
+    <div class="max_min"></div>
+    <img src="./img/1.jpg" class="img_1">
+</body>
+</html>

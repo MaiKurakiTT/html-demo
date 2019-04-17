@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>D3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <style>
+        /* 分别定义了类 axis 下的 path、line、text 元素的样式 */
+        .axis path,
+        .axis line{
+            fill: none;
+            /* 路径 */
+            stroke: red; 
+            /* 指定svg元素<path>的渲染模式
+            auto：浏览器自动权衡渲染速度、平滑度、精确度。默认是倾向于精确度 
+               optimizeSpeed：（渲染速度），浏览器会关闭反锯齿模式
+               crispEdges：（锐度）偏向更加清晰锐利的边缘的渲染。浏览器在渲染的时候会关闭反锯齿模式，且会让线条的位置和宽度和显示器边缘对齐
+               geometricPrecision：（平滑）偏向渲染平滑的曲线。
+            */
+            shape-rendering: crispEdges;
+        }
+        .axis text {
+            font-family: sans-serif;
+            font-size: 11px;
+        }
+        .MyRect {
+		    /* fill: yellow; */
+	    }
+	    .MyText {
+		    /* fill: green; */
+		    text-anchor: middle;
+	    }
+    </style>
+</head>
+<body>
+    <script>
+        let body = d3.select('body'); // 选择文档中的body元素
+
+        // 添加一个svg画布
+        let w = 400;
+        let h = 400;
+        let svg = body.append("svg").attr("width", w).attr("height", h);
+
+        // 给svg四周留一个空白
+        let padding = { left: 30, right: 30, top: 20, bottom: 20 };
+
+        // 定义一个数组
+        let data2 = [10, 20, 30, 40, 33, 24, 12, 5];
+
+        // x轴的序数比例尺
+        let xScale = d3.scale.ordinal()
+        .domain(d3.range(data2.length)) // d3.range(),根据length产生一系列的数值
+        .rangeRoundBands([0, w - padding.left - padding.right]); // 为离散的块划分连续的值域
+        
+        // y轴的线性比例尺
+        let yScale = d3.scale.linear()
+        .domain([0, d3.max(data2)]) // 定义域为0~最大值
+        .range([h - padding.top - padding.bottom, 0]); // 输出范围，默认从左上角向下，需要倒过来
+        
+        // 定义x轴，指定比例尺和位置
+        let xAxis = d3.svg.axis().scale(xScale).orient("bottom");   
+        console.log('xushuting', d3.svg);
+        // 定义y轴
+        let yAxis = d3.svg.axis().scale(yScale).orient("left");
+        
+        //矩形之间的空白
+        let rectPadding = 4;
+        
+        //添加矩形元素
+        let rects = svg.selectAll(".MyRect")
+        .data(data2)
+        .enter()
+        .append("rect")
+        .attr("width", xScale.rangeBand() - rectPadding ) // rangeBand取得离散块的宽度,留出rectPadding
+        .attr("height", function(d){
+            return h - padding.top - padding.bottom - yScale(d);
+        })
+        .attr("x", function(d, i){
+            return xScale(i) + rectPadding/2;
+        } )
+        .attr("y",function(d){
+            // yScale.domain()y轴定义域[0,40],取第一个
+            var min = yScale.domain()[0];
+            return yScale(min);
+        })
+        .attr("fill","red")         //初始颜色为红色
+        .on("mouseover",function(d,i){
+            d3.select(this).attr("fill","yellow");
+        })
+        .on("mouseout",function(d,i){
+            d3.select(this).transition().duration(500).attr("fill","green");
+        })
+        .transition()
+        .delay(function(d,i){
+            return i * 200;
+        })
+        .duration(2000)
+        .ease("bounce")
+        .attr("y",function(d){
+            return yScale(d);
+        })
+        .attr("fill","steelblue")   //终止颜色为铁蓝色
+        .attr("class", "MyRect")
+        .attr("transform", "translate(" + padding.left + "," + padding.top + ")")
+        //添加文字元素
+        let texts = svg.selectAll(".MyText")
+        .data(data2)
+        .enter()
+        .append("text")
+        .attr("class","MyText")
+        .attr("transform","translate(" + padding.left + "," + padding.top + ")")
+        .attr("x", function(d,i){
+            return xScale(i) + rectPadding/2;
+        } )
+        .attr("y",function(d){
+            // yScale.domain()y轴定义域[0,40],取第一个
+            var min = yScale.domain()[0];
+            return yScale(min);
+        })
+        .attr("fill","yellow")      
+        .transition()
+        .delay(function(d,i){
+            return i * 200;
+        })
+        .duration(2000)
+        .ease("bounce")
+        .attr("y",function(d){
+            return yScale(d);
+        })
+        .attr("fill","white")        
+        .attr("dx",function(){
+            return (xScale.rangeBand() - rectPadding)/2;
+        })
+        .attr("dy",function(d){
+            return 20;
+        })
+        .text(function(d){
+            return d;
+        })
+        
+
+        //添加x轴
+        svg.append("g")
+        .attr("class","axis")
+        .attr("transform","translate(" + padding.left + "," + (h - padding.bottom) + ")")
+        .call(xAxis);
+          
+        //添加y轴
+        svg.append("g")
+        .attr("class","axis")
+        .attr("transform","translate(" + padding.left + "," + padding.top + ")")
+        .call(yAxis);
+
+        let circle1 = svg.append("circle")
+        // 圆点的x坐标、y坐标
+        .attr("cx", 100)
+        .attr("cy", 100)
+        // 半径
+        .attr("r", 45)
+        .style("fill","green");
+
+        //在1秒（1000毫秒）内将圆心坐标由100变为300
+        circle1.transition()
+        .duration(1000)
+        .attr("cx", 300)
+        .style('fill', 'red')
+        .attr('r', 25)
+
+    </script>
+</body>
+</html>

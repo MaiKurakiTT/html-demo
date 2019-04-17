@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document2</title>
+    <script src="https://code.createjs.com/1.0.0/createjs.min.js" charset="utf-8"></script>
+    <script src="https://cdn.bootcss.com/tweenjs/1.0.2/tweenjs.min.js"></script>
+</head>
+<body >
+    <style>
+        body {
+            background: #000;
+        }
+    </style>
+    <canvas id="demoCanvas" width="1500" height="650"></canvas>
+    <script>
+        let stage = new createjs.Stage("demoCanvas");
+        createjs.Ticker.on('tick', stage);
+        createjs.Ticker.timingMode = createjs.Ticker.RAF;
+
+        // 定义一些变量
+        let lineWidth = 15;  
+        let mainColor = 'blue';
+        let beginAngle = -45;
+        let endAngle = -135;
+        let arcX = 500;
+        let arcY = 600;
+        let arcR = 100;
+        // 创建一个图形
+        var g = new createjs.Shape();
+        g.xst = g.graphics.beginFill(mainColor).command;
+        // 计算弧
+        let begin = Math.PI / 180 * beginAngle;
+        let end  = Math.PI / 180 * endAngle;
+        // 画弧 moveTo 定义起点
+        g.graphics.moveTo(arcX, arcY).arc(arcX, arcY, arcR+10, begin, end, true);
+        // 画其余的弧
+        for (let i = 0; i < 8; i++) {
+            var a = new createjs.Shape();
+            a.graphics.setStrokeStyle(lineWidth); // 线条
+            a.fillCommand = a.graphics.beginStroke(mainColor).command // 线条颜色
+            let r = arcR+50*(i+1)
+            a.graphics.arc(arcX, arcY, r, begin, end, true);
+            stage.addChild(a);
+            // 画虚线
+            let line = new createjs.Shape();
+            let x = Math.sqrt(r*r/2);
+            line.x = arcX+x;
+            line.y = arcY-x;
+            // 20 是每个虚线的长，10 是虚线的间隔
+            line.fillCommand = line.graphics.beginStroke(mainColor).command;
+            line.graphics.setStrokeDash([2, 5], 0).setStrokeStyle(3).moveTo(0,0).lineTo(1000-arcX-x,0);
+            stage.addChild(line);
+            // 画文字
+            let text = new createjs.Text("hello "+(i+1), "15px Arial", "#ff7700");
+            text.x = arcX+x+15;
+            text.y = arcY-x;
+            text.textBaseline = 'bottom'
+            stage.addChild(text);
+            // 画圆点
+            let circle = new createjs.Shape();
+            circle.graphics.beginFill("red").drawCircle(0, 0, 2);
+            circle.x = 1000;
+            circle.y = text.y;
+            stage.addChild(circle)
+            // 画文字
+            let textR = new createjs.Text("baidu.com "+(i+1), "15px Arial", "#ff7700");
+            textR.x = 1010;
+            textR.y = text.y;
+            textR.textBaseline = 'middle'
+            stage.addChild(textR);
+            // 移入
+            a.on('mouseover',(e) => {
+                console.log('mouseover', e);
+                e.target.fillCommand.style = 'yellow';
+                text.color = 'green'
+                textR.color = 'green'
+                line.fillCommand.style = 'yellow'
+            });
+            // 移出
+            a.on('mouseout',(e) => {
+                console.log('mouseout', e);
+                e.target.fillCommand.style = 'blue';
+                text.color = '#ff7700'
+                textR.color = '#ff7700'
+                line.fillCommand.style = 'blue'
+            })     
+            // 动画
+            console.log('aaa', a);
+            a.graphics.command.startAngle = a.graphics.command.endAngle
+            createjs.Tween.get(a.graphics.command).wait((8-i)*100).to({startAngle:begin}, 1000, createjs.Ease.bounceIn).call(handleComplete)
+            line.scaleX = 0;
+            text.alpha = 0;
+            textR.alpha = 0;
+            circle.alpha = 0;
+            function handleComplete() {
+                createjs.Tween.get(text).to({alpha: 1}, 1000, createjs.Ease.bounceIn)
+                createjs.Tween.get(line).to({scaleX: 1}, 1000, createjs.Ease.bounceIn).call( () =>{
+                    createjs.Tween.get(textR).to({alpha:1}, 1000, createjs.Ease.bounceIn)
+                    createjs.Tween.get(circle).to({alpha:1}, 1000, createjs.Ease.bounceIn)
+                });
+            }
+        }
+        stage.addChild(g);
+        // 使用移入事件， 启用响应鼠标事件，可设置频率
+        stage.enableMouseOver();
+        
+        // 画虚线
+        let line = new createjs.Shape();
+        let x = Math.sqrt(100*100/2);
+        line.x = 500+x;
+        line.y = 600-x;
+        // 20 是每个虚线的长，10 是虚线的间隔
+        line.fillCommand = line.graphics.beginStroke('blue').command;
+        line.graphics.setStrokeDash([2, 5], 0).setStrokeStyle(3).moveTo(0,0).lineTo(1000-500-x,0);
+        stage.addChild(line);
+
+        // 画文字
+        let text = new createjs.Text("hello 0", "15px Arial", "#ff7700");
+        text.x = 500+x+15;
+        text.y = 600-x;
+        text.textBaseline = 'bottom'
+        stage.addChild(text);
+
+        // 画圆点
+        let circle = new createjs.Shape();
+        circle.graphics.beginFill("red").drawCircle(0, 0, 2);
+        circle.x = 1000;
+        circle.y = 600-x;
+        stage.addChild(circle)
+
+        // 画文字
+        let textR = new createjs.Text("baidu.com 0", "15px Arial", "#ff7700");
+        textR.x = 1010;
+        textR.y = 600-x;
+        textR.textBaseline = 'middle'
+        stage.addChild(textR);
+
+        g.on('mouseover',(e) => {
+            console.log('mouseover', e);
+            // e.target.fillCommand.style = 'yellow';
+            e.target.xst.style = 'yellow';
+            text.color = 'green'
+            textR.color = 'green'
+            line.fillCommand.style = 'yellow'
+        });
+        // 移出
+        g.on('mouseout',(e) => {
+            console.log('mouseout', e);
+            // e.target.fillCommand.style = 'blue';
+            e.target.xst.style = 'blue';
+            text.color = '#ff7700'
+            textR.color = '#ff7700'
+            line.fillCommand.style = 'blue'      
+        });   
+        // 动画
+        console.log(g);
+        g.graphics.command.startAngle = g.graphics.command.endAngle
+        createjs.Tween.get(g.graphics.command).wait(9*100).to({startAngle:begin}, 1000, createjs.Ease.bounceIn).call(handleComplete2)
+        // 动画
+        line.scaleX = 0;
+        text.alpha = 0;
+        textR.alpha = 0;
+        circle.alpha = 0;
+        function handleComplete2() {
+            createjs.Tween.get(text).to({alpha: 1}, 1000,createjs.Ease.bounceIn)
+            createjs.Tween.get(line).to({scaleX: 1}, 1000,createjs.Ease.bounceIn).call( () =>{
+                createjs.Tween.get(textR).to({alpha:1}, 1000,createjs.Ease.bounceIn)
+                createjs.Tween.get(circle).to({alpha:1}, 1000,createjs.Ease.bounceIn)
+            });
+        }
+    </script>
+    
+</body>
+</html>

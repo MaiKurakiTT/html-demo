@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>swiper</title>
+</head>
+<body>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 750px;
+            height: 300px;
+            overflow: hidden;
+            position: relative;
+            margin: 100px auto 0;
+        }
+        .swiper {
+            position: absolute;
+            white-space: nowrap;
+            /* width: 3750px; */
+            font-size: 0;
+            left: -750px;
+            transition: all 0.3s;
+        }
+        .item {
+            width: 750px;
+            height: 300px;
+        }
+        .buttons {
+            position: absolute;
+            right: 50px;
+            bottom: 20px;
+            /* z-index: 2; */
+        }
+        .arrow_l,.arrow_r {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            top: 100px
+        }
+        .arrow_l {
+            left: 10px;
+        }
+        .arrow_r {
+            right: 10px;
+        }
+
+        .button_circle {
+            animation: circleLoading 4s;
+            /* 动画完成后，保持最后一个属性值 */
+            animation-fill-mode: forwards;
+        }
+        @keyframes circleLoading {
+            from {
+                stroke-dasharray: 0 2000
+            }
+            to {
+                stroke-dasharray: 1000 2000
+            }
+        }
+        
+    </style>
+    <div class="container">
+        <div class="swiper" id="list">
+            <img src="./img/1.png" class="item"/>
+            <img src="./img/2.png" class="item"/>
+            <img src="./img/3.png" class="item"/>
+            <img src="./img/4.png" class="item"/>
+            <img src="./img/5.png" class="item"/>
+        </div>
+        <div class="buttons">
+            <svg width="150" height="30" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <circle class="button_circle" index="1" cx="15" cy="15" r="10" stroke="#00A5E0" stroke-width="3" fill="yellow" stroke-dasharray="0 1000"/>
+                <circle index="2" cx="40" cy="15" r="10" stroke="#00A5E0" stroke-width="3" fill="yellow" stroke-dasharray="0 1000"/>
+                <circle index="3" cx="65" cy="15" r="10" stroke="#00A5E0" stroke-width="3" fill="yellow" stroke-dasharray="0 1000"/>
+                <circle index="4" cx="90" cy="15" r="10" stroke="#00A5E0" stroke-width="3" fill="yellow" stroke-dasharray="0 1000"/>
+                <circle index="5" cx="115" cy="15" r="10" stroke="#00A5E0" stroke-width="3" fill="yellow" stroke-dasharray="0 1000"/>
+            </svg>
+        </div>
+        <img class="arrow_l" src="./img/left.png" onclick="toLeft()"/>
+        <img class="arrow_r" src="./img/right.png" onclick="toRight()"/>
+    </div>
+    <script>
+        let list = document.getElementById('list');
+        let index = 1;
+        let flag = true;
+        let container = document.querySelector(".container");
+        let offsetWidth = container.offsetWidth;
+        // getElementByClassName 
+        let imgList = document.querySelectorAll('#list img'); // 5
+        let cloneFisrt = imgList[0].cloneNode();
+        let cloneEnd = imgList[imgList.length - 1].cloneNode();
+        list.appendChild(cloneFisrt);
+        list.insertBefore(cloneEnd, imgList[0]);
+        let maxIndex = imgList.length; // 5
+
+        let buttonList = document.querySelectorAll('svg circle');
+
+        buttonList.forEach(el => {
+            el.onclick = function(e) {
+                // this->el元素，箭头函数-》外面作用域this
+                console.log(this.getAttribute('index'));
+                index = parseInt(this.getAttribute('index'));
+                // 删除所有button的样式，再添加
+                buttonList.forEach(el => {
+                    el.classList.remove('button_circle');
+                })
+                this.classList.add('button_circle');
+                list.style.transition = 'all 0.3s';
+                list.style.left = index * -offsetWidth + 'px';
+            }
+        });
+        let timer;
+        // loop();
+        function loop() {
+            timer = setInterval(() => {
+                toRight();
+            }, 1000);
+        }
+        container.addEventListener('mouseover',(e)=> {
+            clearInterval(timer);
+        })
+        container.addEventListener('mouseout',(e)=> {
+            // loop();
+        })
+
+        function toLeft() {
+            if (!flag) return;
+            flag = false;
+            console.log('left');
+            index--;
+            console.log(index);
+            list.style.transition = 'all 0.3s';
+            list.style.left = index * -offsetWidth + 'px';
+        }
+        function toRight() {
+            if (!flag) return;
+            flag = false;
+            console.log('right');
+            index++ ;
+            console.log(index);
+            list.style.transition = 'all 0.3s';
+            list.style.left = index * -offsetWidth + 'px';
+        }
+        list.addEventListener('transitionend', (e) => {
+            console.log('过渡动画结束', e);
+            if (index > maxIndex) {
+                index = 1;
+            } else if (index < 1) {
+                index = maxIndex;
+            }
+            list.style.transition = 'none';
+            list.style.left = index * -offsetWidth + 'px';
+            flag = true;
+            // 删除所有button的样式，再添加
+            buttonList.forEach(el => {
+                el.classList.remove('button_circle');
+            })
+            buttonList[index-1].classList.add('button_circle');
+        })
+    </script>
+    
+</body>
+</html>
