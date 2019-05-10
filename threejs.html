@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>threejs第一课</title>
+</head>
+<body>
+    <style>
+        canvas { 
+            width: 100%; 
+            height: 100% 
+        }
+    </style>
+    <!-- THREE.REVISION 得到当前threejs的版本 -->
+    <script src="./utils/three.js"></script>
+    <script>
+        // 用相机将场景渲染到网页上
+        // 1、场景--所有物体的容器
+        var scene = new THREE.Scene();
+        // 2、相机--场景中哪个角度的景色显示出来，拍摄场景。PerspectiveCamera透视相机
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        // 3、渲染器--决定画在页面的什么元素上。将相机拍下来的图片放在浏览器中显示
+        var renderer = new THREE.WebGLRenderer();
+        // 设置渲染器的大小
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        // renderer.domElement渲染器的画布，将画布挂载到body下面
+        document.body.appendChild(renderer.domElement);
+        // 4、将物体添加到场景中
+        // CubeGeometry一个几何体，由x、y、z决定
+        var geometry = new THREE.CubeGeometry(1,1,1);
+        var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+        var cube = new THREE.Mesh(geometry, material); 
+        scene.add(cube);
+        camera.position.z = 5;
+        // 5、渲染，实时渲染
+        function render() {
+            // 再执行一次render函数
+            requestAnimationFrame(render);
+            cube.rotation.x += 0.1;
+            cube.rotation.y += 0.1;
+            // 参数：场景，相机，渲染目标（默认渲染到前面定义的render变量中），每次绘制之前都将画布的内容给清除
+            renderer.render(scene, camera);
+        }
+        render();
+        // 6、渲染：实时渲染、离线渲染
+    </script>
+</body>
+</html>
