@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>棍子英雄</title>
+</head>
+<body>
+    <style>
+        body {
+            margin: 0;
+        }
+        #bg {
+            width: 500px;
+            height: 100vh;
+            background-image: url('./images/hero.png');
+            background-repeat: no-repeat;
+            background-position: bottom;
+            background-size: cover;
+            position: relative;
+            overflow: hidden;
+        }
+        .people {
+            width: 40px;
+            height: auto;
+            position: absolute;
+            bottom: 300px;
+            z-index: 10;
+            left: 0;
+        }
+        .column {
+            width: 50px;
+            height: 300px;
+            background: #000;
+            position: absolute;
+            bottom: 0;
+        }
+        .column2 {
+            left: 400px;
+        }
+        .bridge {
+            width: 10px;
+            background: orange;
+            height: 0;
+            position: absolute;
+            bottom: 300px;
+            left: 40px;
+        }
+        .column3 {
+            left: 800px;
+        }
+        #warp {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            left: 0;
+            
+        }
+        button {
+            margin: 10px;
+            background: yellow;
+            color: #000;
+            width: 100px;
+            height: 30px;
+        }
+        .gameover {
+            color: #fff;
+            font-weight: bold;
+            font-size: 40px;
+            text-align: center;
+            margin-top: 20px;
+            visibility: hidden;
+        }
+    </style>
+    <div id="bg">
+        <button>重新开始</button>
+        <text>分数：<text id="score">0</text></text>
+        <div class="gameover">GAME OVER</div>
+        <!-- 柱子 -->
+        <div id="warp">
+            <img src="./images/people.png" alt="" class="people">
+            <div class="column"></div>
+            <div class="column column2"></div>
+            <div class="column column3"></div>
+            <!-- 桥 -->
+            <div class="bridge"></div>
+        </div>
+    </div>
+    <script>
+        let bg = document.getElementById("bg");
+        let warp = document.getElementById("warp");
+        let bridge = document.querySelector('.bridge');
+        let column1 = document.querySelector('.column');
+        let column2 = document.querySelector('.column.column2');
+        let column3 = document.querySelector('.column.column3');
+        let people = document.querySelector('.people');
+        let button = document.querySelector('button');
+        let gameover = document.querySelector('.gameover');
+        let text = document.querySelector('#score');
+        let interval;
+        let bridgeOffsetHeight = bridge.offsetHeight;
+        let isFail = false;
+        let score = 0;
+
+        // 随机第二、三根柱子的宽度和距离
+        random(column2, 200, 300);
+        random(column3, 500, 600);
+
+        function random(column, minLeft, maxLeft) {
+            let random = Math.random()*(60-30)+30;
+            column.style.width = Math.round(random) + 'px';
+            let randomLeft = Math.random()*(maxLeft-minLeft)+minLeft;
+            column.style.left = Math.round(randomLeft) + 'px';
+            console.log('随机柱子宽度：', column.style.width, ' 距离：', column.style.left);
+        }
+    
+        button.addEventListener('click', (e) => {
+            console.log('重新开始');
+            // 取消过渡动画 小人bottom归位 隐藏gameover
+            people.style.transition = 'none';
+            people.style.bottom = 300 + 'px';
+            gameover.style.visibility = 'hidden';
+            restart();
+            // 随机第二、三根柱子的宽度
+            random(column2, 200, 300);
+            random(column3, 500, 600);
+            // 重置分数
+            text.innerHTML = 0;
+            score = 0;
+        })
+        button.addEventListener('mousedown', (e) => {
+            // 停止传播，阻止事件冒泡
+            e.stopPropagation();
+
+        })
+        button.addEventListener('mouseup', (e) => {
+            // 停止传播，阻止事件冒泡
+            e.stopPropagation();
+
+        })
+        bg.addEventListener('mousedown',(e) => {
+            if (!isFail) {
+                interval = setInterval(() => {
+                    bridge.style.height = (bridgeOffsetHeight += 10) +'px';
+                    text.innerHTML = score++
+                }, 50);
+            }
+        }, false) // 冒泡事件，从内到外
+
+        bg.addEventListener('mouseup',() => {
+            if (!isFail) {
+                clearInterval(interval);
+                // 旋转桥
+                bridge.style.transform = 'rotate(90deg)';
+                bridge.style.transformOrigin = 'right bottom';
+                let offset = column2.offsetLeft - column1.offsetLeft - column1.offsetWidth;
+                if (bridgeOffsetHeight < offset || bridgeOffsetHeight > offset + column2.offsetWidth) {
+                    isFail = true;
+                    console.log('gameover', isFail);
+                    gameover.style.visibility = 'visible';
+                    // 移动棍子+小人的距离
+                    people.style.transition = 'left 1s,bottom 2s 1s';
+                    // 小人掉下去
+                    people.style.left = bridgeOffsetHeight + 40 + 'px';
+                    people.style.bottom = -50 + 'px';
+                } else {
+                    console.log('成功');
+                    // 小人移动到下一根
+                    people.style.left = column2.offsetLeft + 'px';
+                    // 移动场景
+                    warp.style.transition = 'all 1s';
+                    warp.style.left = - column2.offsetLeft + 'px';
+                }
+            }
+        }, false)
+        warp.addEventListener('transitionend', ()=>{
+            if (!isFail) {
+                console.log('transitionend成功');
+                // 第二根柱子的宽度赋值给第一根
+                column1.style.width = column2.offsetWidth + 'px';
+                // 第三根赋值给第二根
+                column2.style.width = column3.offsetWidth + 'px';
+                column2.style.left = column3.offsetLeft - 300 + 'px';
+                restart();
+                // 随机第三根柱子的宽度
+                random(column3, 500, 600);
+            } else {
+                console.log('transitionend失败');
+            }
+            
+
+        })
+
+        function restart() {
+            isFail = false;
+            warp.style.transition = 'none';
+            warp.style.left = 0 + 'px';
+            // 小人归位
+            people.style.left = 0;
+            // 桥消失
+            bridge.style.height = 0;
+            bridgeOffsetHeight = 0;
+            bridge.style.transform = 'rotate(0deg)';
+            // 初始化桥的位置
+            bridge.style.left = column1.offsetWidth - bridge.offsetWidth + 'px';
+        }
+
+    </script>
+</body>
+</html>
