@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>懒加载</title>
+</head>
+<body>
+    <style>
+        .img_list {
+            width: 300px;
+            /* 不设置高度的话，所有图片都会在可视区域内 */
+            height: 100%;
+        }
+        .img_item {
+            width: 300px;
+            background: gray;
+            height: 400px;
+        }
+    
+    </style>
+    <!-- src属性：当属性不为空时，会发送请求 -->
+    <!-- 页面较长时可视区域有限，不设置img标签中的src属性/指向同一个占位符 -->
+    <!-- 实际地址存放在img标签的自定义属性中，data- -->
+    <!-- data-* 全局属性：构成一类名称为自定义数据属性的属性，可以通过HTMLElement.dataset来访问。 -->
+    <!-- 监听scroll，动态设置 -->
+    <div class="img_list">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/rankingList6.png">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/rankingList7.png">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/rankingListBanner5.png">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/rankingShare.png">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-images-banner.jpg">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-images-new_hand3.jpg">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-images-new_hand4.jpg">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-images-recruit_banner.jpg">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-images-recruit_info3.jpg">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-sbj-activity-11.png">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-sbj-activity-111.png">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-sbj-activity-bg.png">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-sbj-activity-card.png">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-sbj-activity-packets.png">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-sbj-activity-t.png">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-sbj-activity-text_bg.png">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-sbj-activity-zhuli.png">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-sbj-activity-zhulichenggong.png">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-sbj-dianzan.svg">
+        <img src="" class="img_item" lazyload="true" data-original="https://qiniu.weimtek.cn/yuelin-sbj-haibao.png">
+
+    </div>
+
+    <script>
+        // 屏幕对象
+        /*
+        window.screen.width 整个显示器屏幕的大小
+        window.screen.height
+        window.screenTop 浏览器窗口顶部/左端距离屏幕大小
+        window.screenLeft
+        window.screen.availHeight
+        window.screen.availWidth
+        **/
+
+        // 浏览器窗口属性
+        /*
+        offsetWidth/Height在不同浏览器下表现有出入
+        document.documentElement.clientWidth 当前窗口视图区域，不包括工具栏滚动条
+        document.documentElement.clientHeight
+        document.documentElement.scrollWidth 整个网页大小，包括可视区域可被卷起来的区域
+        document.documentElement.scrollHeight
+        document.documentElement.scrollTop 已滚动的距离
+        document.body.scrollTop
+        document.body.scrollLeft
+        **/
+
+        // document对象是window对象的一部分，可通过window.document进行访问。
+
+
+        let height = window.innerHeight;
+        let imgs = document.querySelectorAll('.img_item')
+        console.log('全部图片', imgs);
+        function isRight(el) {
+            // 获取元素的大小及位置，包含 t b l r width height，相对于左上角
+            let bound = el.getBoundingClientRect();
+            return bound.top <= height;
+        }
+        checkImg();
+        function checkImg() {
+            Array.from(imgs).forEach(el => {
+                if (!el.dataset.original) {
+                    return;
+                }
+                if (isRight(el)) {
+                    console.log('可视区域内', el.src);
+                    el.src = el.dataset.original;
+                    el.dataset.original = '';
+                }
+            })
+            
+        }
+        window.addEventListener('scroll',checkImg);
+    
+    </script>
+    
+</body>
+</html>

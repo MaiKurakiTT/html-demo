@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>预加载</title>
+</head>
+<body>
+    <script src="https://code.createjs.com/1.0.0/preloadjs.min.js" charset="utf-8"></script>
+    <!-- 方式一 -->
+    <img src="https://qiniu.weimtek.cn/rankingList6.png" style="display: none">
+    <!-- 方式二 使用image对象 资源被下载下来 但是并没有被使用 -->
+    <script>
+        let img = new Image();
+        img.src = 'https://qiniu.weimtek.cn/rankingListBanner5.png';
+
+        // 方式三 XMLHttpRequest对象 可以对请求过程进行监控 会出现跨域问题
+        let http = new XMLHttpRequest();
+        http.onreadystatechange = callback;
+        http.onprogress = progressCallback; // 监听整个数据传输的情况
+        http.open('GET', 'https://qiniu.weimtek.cn/rankingShare.png', true);
+        http.send();
+        function callback() {
+            if (http.readyState === 4 && http.status === 200) {
+                let text = http.responseText;
+            } else {
+                console.log('不成功', http.status);
+            }
+        }
+        function progressCallback(e) {
+            e = e || event;
+            if (e.lengthComputable) {
+                console.log('received ' + e.loaded + e.total);
+            }
+            
+        }
+
+        // 方式四 preloadJs库 预加载相关资源
+        let queue = new createjs.LoadQueue();
+        queue.on("complete", handleComplete, this)
+        queue.loadManifest([
+            {id: "myImage", src:"https://qiniu.weimtek.cn/yuelin-sbj-activity-111.png"},
+            {id: "myImage2", src:"https://qiniu.weimtek.cn/yuelin-sbj-activity-card.png"},
+        ]);
+        function handleComplete() {
+            let image = queue.getResult("myImage");
+            console.log(image);
+            document.body.appendChild(image);
+        }
+    </script>
+</body>
+</html>

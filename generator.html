@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>generator</title>
+</head>
+<body>
+    <script>
+        // 抽奖
+        function draw(count) {
+            console.log(`剩余${count}次`);
+        }
+        function* genFun(count) {
+            while (count>0) {
+                count -- ;
+                yield draw(count);
+            }
+        }
+        let gen = genFun(5);
+        let btn = document.createElement('button');
+        btn.id = 'start';
+        btn.textContent = '抽奖';
+        document.body.appendChild(btn);
+        document.getElementById('start').addEventListener('click',()=>{
+            gen.next();
+        })
+
+        // 长轮询：generator+promise
+        function* ajax() {
+            yield new Promise((resolve, reject)=>{
+                setTimeout(() => {
+                    resolve({code: 0});
+                }, 2000);
+            })
+        }
+        function pull() {
+            let gen = ajax();
+            let step = gen.next();
+            console.log('step:', step);
+            step.value.then((e)=>{
+                if (e.code!==0) {
+                    console.log('继续请求');
+                    pull();
+                }else {
+                    console.log('停止', e);
+                }
+            })
+            
+        }
+        pull();
+
+
+    
+    </script>
+    
+</body>
+</html>
